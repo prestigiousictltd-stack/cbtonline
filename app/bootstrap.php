@@ -33,7 +33,10 @@ if (APP_DEBUG) {
         @mkdir($logDir, 0755, true);
     }
     ini_set('log_errors', '1');
-    ini_set('error_log', $logDir . '/php-error.log');
+    // On Docker / Railway, keep error_log sent to stderr so logs are visible in the platform dashboard
+    if (!getenv('RAILWAY_ENVIRONMENT') && !getenv('RAILWAY_SERVICE_ID') && !is_file('/.dockerenv')) {
+        ini_set('error_log', $logDir . '/php-error.log');
+    }
 }
 
 // 5. Timezone
@@ -47,6 +50,16 @@ spl_autoload_register(static function (string $class): void {
     $file = APP_ROOT . '/app/' . str_replace('\\', '/', $relative) . '.php';
     if (is_file($file)) {
         require_once $file;
+        return;
+    }
+    // Case-sensitivity tolerance for Linux (e.g. app/support vs app/Support)
+    $parts = explode('/', str_replace('\\', '/', $relative));
+    if (count($parts) > 1) {
+        $parts[0] = strtolower($parts[0]);
+        $altFile = APP_ROOT . '/app/' . implode('/', $parts) . '.php';
+        if (is_file($altFile)) {
+            require_once $altFile;
+        }
     }
 });
 

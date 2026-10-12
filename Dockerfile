@@ -94,7 +94,7 @@ RUN printf '%s\n' \
     'display_errors = Off' \
     'display_startup_errors = Off' \
     'log_errors = On' \
-    'error_log = /var/www/html/storage/logs/php-error.log' \
+    'error_log = /dev/stderr' \
     'date.timezone = Africa/Lagos' \
     'session.save_path = "/var/lib/php/sessions"' \
     > /usr/local/etc/php/conf.d/app.ini

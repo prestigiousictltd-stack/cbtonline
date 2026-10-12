@@ -31,7 +31,9 @@ final class Database
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00', sql_mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'",
             ]);
         } catch (PDOException $e) {
-            Logger::error('DB connection failed', ['error' => $e->getMessage()]);
+            $errDetail = sprintf('[DB ERROR] Failed connecting to %s:%d/%s as %s: %s', DB_HOST, DB_PORT, DB_NAME, DB_USER, $e->getMessage());
+            error_log($errDetail);
+            Logger::error('DB connection failed', ['error' => $e->getMessage(), 'host' => DB_HOST, 'port' => DB_PORT, 'database' => DB_NAME, 'user' => DB_USER]);
             http_response_code(500);
             exit(APP_DEBUG ? 'DB error: ' . $e->getMessage() : 'Service temporarily unavailable.');
         }

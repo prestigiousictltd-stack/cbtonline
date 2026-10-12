@@ -14,6 +14,11 @@ ServerSignature Off
     RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC]
     RewriteRule ^ - [F,L]
 
+    # Case tolerance for assets directory on Linux (assets/ -> Assets/)
+    RewriteCond %{REQUEST_URI} ^/assets/(.*)$ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/Assets/%1 -f
+    RewriteRule ^assets/(.*)$ Assets/$1 [L,NC]
+
     # Serve existing files/directories
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
