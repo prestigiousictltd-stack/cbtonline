@@ -1,0 +1,69 @@
+Options -Indexes -ExecCGI -MultiViews
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block common probe patterns
+    RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+    RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+    RewriteCond %{QUERY_STRING} base64_(en|de)code[^(]*\([^)]*\) [OR]
+    RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC]
+    RewriteRule ^ - [F,L]
+
+    # Serve existing files/directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Map /login -> /login.php
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+?)/?$ $1.php [L,QSA]
+
+    # Everything else -> 404
+    RewriteRule ^ 404.php [L]
+</IfModule>
+
+# Deny access to sensitive extensions and dotfiles
+<FilesMatch "\.(env|ini|log|sh|sql|bak|old|swp|tar|gz|zip|conf|md|yml|yaml|lock|json)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^\.|~$">
+    Require all denied
+</FilesMatch>
+<Files "composer.json">
+    Require all denied
+</Files>
+
+# Force downloads for any accidental static asset leaks
+<FilesMatch "\.(phtml|php3|php4|php5|php7|phar|pl|py|cgi|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+
+# Cache-control for authenticated portal pages
+<If "%{REQUEST_URI} =~ m#^/(admin|superadmin|client|payment|api)/#">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+    </IfModule>
+</If>
+
+# Security headers (mirrored from PHP, so even error pages get them)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+    Header always unset X-Powered-By
+    Header always unset Server
+</IfModule>
+
+# Block bad bots on obvious probe paths
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} (wp-admin|wp-login|phpmyadmin|adminer|\.git|\.env|\.svn) [NC]
+    RewriteRule ^ - [F,L]
+</IfModule>

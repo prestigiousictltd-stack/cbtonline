@@ -1,0 +1,48 @@
+project/
+├── .env
+├── .env.example
+├── .gitignore
+├── config/
+│   ├── .htaccess
+│   ├── app.php
+│   ├── database.php
+│   ├── security.php
+│   └── payments.php
+├── app/
+│   ├── .htaccess
+│   ├── bootstrap.php
+│   ├── Core/...
+│   ├── Repositories/...
+│   ├── Services/...
+│   ├── Support/...
+│   └── Views/
+│       ├── layouts/
+│       └── partials/
+├── public/
+│   ├── .htaccess
+│   ├── index.php
+│   ├── register.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── forgot-password.php
+│   ├── reset-password.php
+│   ├── 403.php
+│   ├── 404.php
+│   ├── admin/login.php
+│   ├── admin/logout.php
+│   ├── superadmin/login.php
+│   ├── superadmin/logout.php
+│   └── assets/css/app.css
+├── database/
+│   ├── .htaccess
+│   ├── schema.sql (already written)
+│   └── seed.sql (already written)
+├── scripts/
+│   ├── .htaccess
+│   └── create_super_admin.php (already written)
+├── storage/
+│   ├── .htaccess
+│   ├── logs/
+│   └── uploads/
+└── cron/
+    └── .htaccess
