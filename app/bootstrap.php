@@ -5,18 +5,18 @@ define('APP_ROOT',  dirname(__DIR__));
 define('APP_START', microtime(true));
 
 // 1. Helpers must load before .env
-require_once APP_ROOT . '/app/Support/helpers.php';
+require_once APP_ROOT . '/app/support/helpers.php';
 
 // 2. Load environment
 load_env(APP_ROOT . '/.env');
 
 // 3. Constants + config
-require_once APP_ROOT . '/app/Support/constants.php';
+require_once APP_ROOT . '/app/support/constants.php';
 require_once APP_ROOT . '/config/app.php';
 require_once APP_ROOT . '/config/database.php';
 require_once APP_ROOT . '/config/security.php';
 require_once APP_ROOT . '/config/payments.php';
-require_once APP_ROOT . '/app/Support/format.php';
+require_once APP_ROOT . '/app/support/format.php';
 
 // 4. Error handling — production logs, never displays
 if (APP_DEBUG) {
