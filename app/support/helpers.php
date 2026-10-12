@@ -136,3 +136,66 @@ function is_active(string $path, bool $exact = true): string
     if ($exact) return $current === $path ? 'active' : '';
     return str_starts_with($current, $path) ? 'active' : '';
 }
+
+/**
+ * Case-tolerant image resolver for service cards on Linux & Windows.
+ * Resolves images whether the directory on disk is Assets/ or assets/,
+ * whether the icon filename in DB is .svg, .jpg, or .JPG,
+ * or by matching service name / slug keywords (jamb, waec, neco, nabteb, post-utme).
+ */
+function resolve_service_image(array|string $service): ?string
+{
+    $dirs = [
+        APP_ROOT . '/public/Assets/img/services',
+        APP_ROOT . '/public/assets/img/services',
+    ];
+
+    $icon = '';
+    $slug = '';
+    $name = '';
+
+    if (is_array($service)) {
+        $icon = trim((string) ($service['icon'] ?? ''));
+        $slug = strtolower((string) ($service['slug'] ?? ''));
+        $name = strtolower((string) ($service['name'] ?? ''));
+    } else {
+        $icon = trim($service);
+    }
+
+    foreach ($dirs as $dir) {
+        if (!is_dir($dir)) continue;
+
+        // 1. Direct file existence
+        if ($icon !== '' && is_file($dir . '/' . $icon)) {
+            return asset('img/services/' . $icon);
+        }
+
+        // 2. Case-insensitive search on disk (handles WAEC.JPG vs waec.jpg, etc.)
+        $files = scandir($dir) ?: [];
+        $files = array_diff($files, ['.', '..']);
+
+        if ($icon !== '') {
+            $iconBase = strtolower(pathinfo($icon, PATHINFO_FILENAME));
+            foreach ($files as $f) {
+                if (strcasecmp($f, $icon) === 0) {
+                    return asset('img/services/' . $f);
+                }
+                if (strtolower(pathinfo($f, PATHINFO_FILENAME)) === $iconBase) {
+                    return asset('img/services/' . $f);
+                }
+            }
+        }
+
+        // 3. Keyword / slug matching fallback (e.g. jamb, waec, neco, nabteb, post-utme)
+        foreach ($files as $f) {
+            $fBase = strtolower(pathinfo($f, PATHINFO_FILENAME));
+            if ($fBase === '') continue;
+
+            if (($slug !== '' && str_contains($slug, $fBase)) || ($name !== '' && str_contains($name, $fBase))) {
+                return asset('img/services/' . $f);
+            }
+        }
+    }
+
+    return null;
+}

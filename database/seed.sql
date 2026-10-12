@@ -42,52 +42,52 @@ VALUES
   (1,  'JAMB O\'Level Upload', 'jamb-olevel-upload',
        'Upload and process your O\'Level result information on the JAMB portal.',
        'Upload O\'Level result to JAMB profile.',
-       5000.00, 500.00, 1440, '24 Hours', 'jamb.svg', 1, 'active'),
+       5000.00, 500.00, 1440, '24 Hours', 'JAMB.jpg', 1, 'active'),
 
   (2,  'WAEC/NECO Result Upload', 'waec-neco-result-upload',
        'Upload your WAEC or NECO result to the relevant admission portal.',
        'Upload WAEC/NECO result to admission portal.',
-       7500.00, 750.00, 1440, '24 Hours', 'waec.svg', 2, 'active'),
+       7500.00, 750.00, 1440, '24 Hours', 'WAEC.JPG', 2, 'active'),
 
   (3,  'JAMB Original Result', 'jamb-original-result',
        'Request your original JAMB result slip.',
        'Request original JAMB result slip.',
-       8000.00, 800.00, 720, '12 Hours', 'jamb.svg', 3, 'active'),
+       8000.00, 800.00, 720, '12 Hours', 'JAMB.jpg', 3, 'active'),
 
   (4,  'JAMB Change of Course/Institution', 'jamb-change-of-course',
        'Change your course or institution on the JAMB portal.',
        'Change JAMB course or institution.',
-       3500.00, 350.00, 1440, '24 Hours', 'jamb.svg', 4, 'active'),
+       3500.00, 350.00, 1440, '24 Hours', 'JAMB.jpg', 4, 'active'),
 
   (5,  'JAMB Regularisation', 'jamb-regularisation',
        'Regularise your JAMB admission for NYSC and other purposes.',
        'JAMB regularisation for NYSC.',
-       15000.00, 1500.00, 2880, '48 Hours', 'jamb.svg', 5, 'active'),
+       15000.00, 1500.00, 2880, '48 Hours', 'JAMB.jpg', 5, 'active'),
 
   (6,  'JAMB Password Reset', 'jamb-password-reset',
        'Reset your JAMB profile password.',
        'Reset JAMB profile password.',
-       2000.00, 250.00, 360, '6 Hours', 'jamb.svg', 6, 'active'),
+       2000.00, 250.00, 360, '6 Hours', 'JAMB.jpg', 6, 'active'),
 
   (7,  'POST-UTME Application', 'post-utme-application',
        'Apply for POST-UTME screening at your chosen institution.',
        'Apply for POST-UTME screening.',
-       4500.00, 450.00, 2880, '48 Hours', 'post-utme.svg', 7, 'active'),
+       4500.00, 450.00, 2880, '48 Hours', 'POST-UTME.jpg', 7, 'active'),
 
   (8,  'WAEC Result PIN', 'waec-result-pin',
        'Purchase a WAEC result checker PIN.',
        'Purchase WAEC result checker PIN.',
-       3500.00, 350.00, 720, '12 Hours', 'waec.svg', 8, 'active'),
+       3500.00, 350.00, 720, '12 Hours', 'WAEC.JPG', 8, 'active'),
 
   (9,  'NECO Result PIN', 'neco-result-pin',
        'Purchase a NECO result checker PIN.',
        'Purchase NECO result checker PIN.',
-       3500.00, 350.00, 720, '12 Hours', 'neco.svg', 9, 'active'),
+       3500.00, 350.00, 720, '12 Hours', 'NECO.jpg', 9, 'active'),
 
   (10, 'NABTEB Result PIN', 'nabteb-result-pin',
        'Purchase a NABTEB result checker PIN.',
        'Purchase NABTEB result checker PIN.',
-       3500.00, 350.00, 720, '12 Hours', 'nabteb.svg', 10, 'active');
+       3500.00, 350.00, 720, '12 Hours', 'NABTEB.jpg', 10, 'active');
 
 -- -----------------------------------------------------------------------------
 -- 3. SERVICE FIELDS

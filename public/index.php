@@ -573,16 +573,13 @@ $loginUrl = url('/login');
         <?php else: ?>
             <div class="row g-4">
                 <?php foreach ($services as $s):
-                    $icon = trim((string) ($s['icon'] ?? ''));
-                    $imageUrl  = $icon !== '' ? asset('img/services/' . $icon) : '';
-                    $imagePath = $icon !== '' ? (APP_ROOT . '/public/assets/img/services/' . $icon) : '';
-                    $hasImage  = $icon !== '' && is_file($imagePath);
+                    $imageUrl = resolve_service_image($s);
                 ?>
                     <div class="col-md-6 col-lg-4">
                         <a class="service-card"
                            href="<?= e($loginUrl . '?next=' . urlencode('/client/submit?service=' . urlencode((string) $s['slug']))) ?>">
                             <div class="service-card__image">
-                                <?php if ($hasImage): ?>
+                                <?php if ($imageUrl): ?>
                                     <img src="<?= e($imageUrl) ?>" alt="<?= e($s['name']) ?>">
                                 <?php else: ?>
                                     <i class="bi bi-briefcase placeholder-icon"></i>

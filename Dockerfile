@@ -106,6 +106,14 @@ WORKDIR /var/www/html
 
 COPY . .
 
+# Compatibility symlinks for Linux case sensitivity (assets/Assets, Support/support)
+RUN if [ -d "/var/www/html/public/Assets" ] && [ ! -e "/var/www/html/public/assets" ]; then \
+        ln -s Assets /var/www/html/public/assets; \
+    fi \
+    && if [ -d "/var/www/html/app/support" ] && [ ! -e "/var/www/html/app/Support" ]; then \
+        ln -s support /var/www/html/app/Support; \
+    fi
+
 # -----------------------------------------------------------------------------
 # 7. Permissions and directory scaffolding
 # -----------------------------------------------------------------------------
