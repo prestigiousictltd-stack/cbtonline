@@ -136,6 +136,20 @@ RUN printf '%s\n' \
     'echo "[entrypoint] Apache will listen on port ${PORT}"' \
     'sed -i "s/^Listen 80$/Listen ${PORT}/" /etc/apache2/ports.conf' \
     'sed -i "s/:80>/:${PORT}>/" /etc/apache2/sites-available/000-default.conf' \
+
+    RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'set -e' \
+    'PORT="${PORT:-8080}"' \
+    'echo "[entrypoint] Apache will listen on port ${PORT}"' \
+    'sed -i "s/^Listen 80$/Listen ${PORT}/" /etc/apache2/ports.conf' \
+    'sed -i "s/:80>/:${PORT}>/" /etc/apache2/sites-available/000-default.conf' \
+    'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' \
+    'ln -s ../mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load' \
+    'ln -s ../mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf' \
+    'exec apache2-foreground' \
+    > /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
     'exec apache2-foreground' \
     > /usr/local/bin/entrypoint.sh \
     && chmod +x /usr/local/bin/entrypoint.sh
