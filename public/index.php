@@ -641,7 +641,7 @@ $loginUrl = url('/login');
                         <span class="footer-contact-icon"><i class="bi bi-envelope-fill"></i></span>
                         <span class="footer-contact-text">
                             <span class="footer-contact-label">Email</span>
-                            <span class="footer-contact-value">hello@servicehub-ng.example</span>
+                            <span class="footer-contact-value">PrestigiousICT@gmail.com</span>
                         </span>
                     </a>
 
@@ -649,7 +649,7 @@ $loginUrl = url('/login');
                         <span class="footer-contact-icon"><i class="bi bi-whatsapp"></i></span>
                         <span class="footer-contact-text">
                             <span class="footer-contact-label">WhatsApp</span>
-                            <span class="footer-contact-value">+234 812 345 6789</span>
+                            <span class="footer-contact-value">+234 816 150 8927</span>
                         </span>
                     </a>
 
