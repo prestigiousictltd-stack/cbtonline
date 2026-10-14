@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 define('APP_ENV',      (string) env('APP_ENV', 'production'));
 define('APP_DEBUG',    filter_var(env('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL));
-define('APP_NAME',     (string) env('APP_NAME', 'ServiceHub NG'));
+define('APP_NAME',     (string) env('APP_NAME', 'CBTOnline'));
 $configuredAppUrl = (string) env('APP_URL', '');
 if ($configuredAppUrl === '' || $configuredAppUrl === 'http://localhost') {
     if (env('RAILWAY_PUBLIC_DOMAIN')) {
