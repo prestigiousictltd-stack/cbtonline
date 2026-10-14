@@ -660,6 +660,7 @@ $loginUrl = url('/login');
 
             <div class="footer-bottom">
                 <span>&copy; <?= date('Y') ?> <?= e(APP_NAME) ?>. All rights reserved.</span>
+                <div><span>DEVELOPED BY CYSTEMSGROUP@GMAIL.COM</span></div>
              
             </div>
         </div>
