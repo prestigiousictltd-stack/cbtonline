@@ -51,6 +51,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $link = url('/reset-password?token=' . $raw . '&email=' . urlencode($user['email']));
 
+            // --- Send the reset link via Resend ---
+            $resetEmailHtml = sprintf(
+                '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;">'
+                . '<h2 style="color:#1F82B6;">Reset your %s password</h2>'
+                . '<p>Someone requested a password reset for your account. Click the button below to choose a new password. This link is valid for one hour.</p>'
+                . '<p style="text-align:center;margin:32px 0;">'
+                . '<a href="%s" style="background:#1F82B6;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">Reset password</a>'
+                . '</p>'
+                . '<p style="color:#64748b;font-size:13px;">If the button does not work, paste this link into your browser:<br><code>%s</code></p>'
+                . '<p style="color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;padding-top:12px;">If you did not request this, you can safely ignore this email.</p>'
+                . '</div>',
+                e(APP_NAME),
+                e($link),
+                e($link)
+            );
+
+            (new \App\Services\ResendMailer())::fromEnv()->send(
+                $user['email'],
+                'Reset your ' . APP_NAME . ' password',
+                $resetEmailHtml
+            );
+
+            $delivered = true;
+                    if ($delivered === false) {
+            Logger::warning('Password reset email failed to send', ['email' => $user['email']]);
+            // Still show the same notice to prevent email enumeration
+        }
             // In production this would be emailed. In local dev we surface it.
             if (APP_DEBUG) {
                 $devLink = $link;
