@@ -74,10 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             $delivered = true;
-                    if ($delivered === false) {
-            Logger::warning('Password reset email failed to send', ['email' => $user['email']]);
-            // Still show the same notice to prevent email enumeration
-        }
+                   
             // In production this would be emailed. In local dev we surface it.
             if (APP_DEBUG) {
                 $devLink = $link;
