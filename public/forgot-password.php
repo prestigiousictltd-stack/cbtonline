@@ -5,6 +5,7 @@ require_once __DIR__ . '/../app/bootstrap.php';
 use App\Core\Csrf;
 use App\Core\Database;
 use App\Services\AuditService;
+use App\Services\ResendMailer;
 
 $errors  = [];
 $notice  = null;
@@ -49,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Client requested a password reset', userType: 'client', userId: (int) $user['id']
             );
 
-            $link = url('/reset-password?token=' . $raw . '&email=' . urlencode($user['email']));
+                       $link = url('/reset-password?token=' . $raw . '&email=' . urlencode($user['email']));
 
             // --- Send the reset link via Resend ---
             $resetEmailHtml = sprintf(
@@ -67,18 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 e($link)
             );
 
-            (new \App\Services\ResendMailer())::fromEnv()->send(
+            $delivered = \App\Services\ResendMailer::fromEnv()->send(
                 $user['email'],
                 'Reset your ' . APP_NAME . ' password',
                 $resetEmailHtml
             );
 
-            $delivered = true;
-                   
-            // In production this would be emailed. In local dev we surface it.
+            if ($delivered === false) {
+                \App\Core\Logger::warning('Password reset email delivery failed', [
+                    'email' => $user['email'],
+                ]);
+            }
+
+            // Local dev convenience: surface the link on screen when APP_DEBUG is on.
             if (APP_DEBUG) {
                 $devLink = $link;
-            }
+            } 
         }
     }
 }
