@@ -641,7 +641,7 @@ $loginUrl = url('/login');
                         <span class="footer-contact-icon"><i class="bi bi-envelope-fill"></i></span>
                         <span class="footer-contact-text">
                             <span class="footer-contact-label">Email</span>
-                            <span class="footer-contact-value">PrestigiousICT@gmail.com</span>
+                            <span class="footer-contact-value"></span>
                         </span>
                     </a>
 
