@@ -50,7 +50,25 @@ function redirect(string $path): never
     exit;
 }
 
-function client_ip(): string { return (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'); }
+function client_ip(): string
+{
+    $headers = [
+        'HTTP_CF_CONNECTING_IP',
+        'HTTP_X_FORWARDED_FOR',
+        'HTTP_X_REAL_IP',
+        'REMOTE_ADDR',
+    ];
+    foreach ($headers as $h) {
+        if (!empty($_SERVER[$h])) {
+            $raw = (string) $_SERVER[$h];
+            $first = trim(explode(',', $raw)[0]);
+            if (filter_var($first, FILTER_VALIDATE_IP)) {
+                return $first;
+            }
+        }
+    }
+    return (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+}
 function user_agent(): string { return substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255); }
 
 function flash(string $type, string $message): void

@@ -17,12 +17,9 @@ final class Session
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
                || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
-        // Choose SameSite based on which portal the current URL belongs to.
-        // This is set before session_start, so we infer from the request path.
-        $path = $_SERVER['SCRIPT_NAME'] ?? '';
-        $samesite = (str_contains($path, '/admin/') || str_contains($path, '/superadmin/'))
-            ? 'Strict'
-            : 'Lax';
+        // Use Lax SameSite so session cookies persist reliably across redirects
+        // following POST submissions on modern browsers.
+        $samesite = 'Lax';
 
         session_name(SESSION_NAME);
         session_set_cookie_params([
@@ -52,18 +49,10 @@ final class Session
         }
         $_SESSION['_last_activity'] = $now;
 
-        // Optional IP binding — only enforced for admin guards where the
-        // legitimate use case is narrower. Client users on mobile networks
-        // frequently change IP mid-session, so we don't bind them.
-        if (str_contains($path, '/admin/')) {
-            $ip = self::clientIp();
-            if (!isset($_SESSION['_ip'])) {
-                $_SESSION['_ip'] = $ip;
-            } elseif (!hash_equals($_SESSION['_ip'], $ip)) {
-                self::destroy();
-                session_start();
-                $_SESSION['_ip'] = $ip;
-            }
+        // Record client IP for audit logs without destroying sessions across cloud proxy IP changes
+        $ip = self::clientIp();
+        if (!isset($_SESSION['_ip'])) {
+            $_SESSION['_ip'] = $ip;
         }
 
         self::$started = true;
@@ -104,6 +93,6 @@ final class Session
 
     private static function clientIp(): string
     {
-        return (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        return function_exists('client_ip') ? client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
     }
 }

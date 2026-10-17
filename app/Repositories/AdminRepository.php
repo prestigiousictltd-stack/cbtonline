@@ -32,9 +32,10 @@ final class AdminRepository
 
     public function findByEmailOrUsername(string $identifier): ?array
     {
+        $id = strtolower(trim($identifier));
         return Database::selectOne(
             'SELECT * FROM admins WHERE email = :e OR username = :u LIMIT 1',
-            [':e' => strtolower(trim($identifier)), ':u' => $identifier]
+            [':e' => $id, ':u' => $id]
         );
     }
 

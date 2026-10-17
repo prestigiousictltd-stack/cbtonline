@@ -44,6 +44,7 @@ final class Auth
     {
         Session::regenerate();
         Csrf::rotate();
+        unset($_SESSION['admin_id'], $_SESSION['superadmin_id']);
         $_SESSION['client_id'] = (int) $user['id'];
         (new UserRepository())->touchLogin((int) $user['id'], client_ip());
         if ($remember) self::issueRememberToken('client', (int) $user['id']);
@@ -74,12 +75,23 @@ final class Auth
             flash('warning', 'Please sign in to continue.');
             redirect('/admin/login');
         }
+
+        // Forced password change (except on the change-password and logout pages)
+        if (!empty($a['must_change_password'])) {
+            $script = $_SERVER['SCRIPT_NAME'] ?? '';
+            if (!str_contains($script, 'change-password') && !str_contains($script, 'logout')) {
+                flash('warning', 'Please change your password before continuing.');
+                redirect('/admin/change-password');
+            }
+        }
         return $a;
     }
 
     public static function loginAdmin(array $admin, bool $remember = false): void
     {
-        Session::regenerate(); Csrf::rotate();
+        Session::regenerate();
+        Csrf::rotate();
+        unset($_SESSION['client_id'], $_SESSION['superadmin_id']);
         $_SESSION['admin_id'] = (int) $admin['id'];
         (new AdminRepository())->touchLogin((int) $admin['id'], client_ip());
         if ($remember) self::issueRememberToken('admin', (int) $admin['id']);
@@ -115,7 +127,9 @@ final class Auth
 
     public static function loginSuperAdmin(array $superAdmin, bool $remember = false): void
     {
-        Session::regenerate(); Csrf::rotate();
+        Session::regenerate();
+        Csrf::rotate();
+        unset($_SESSION['client_id'], $_SESSION['admin_id']);
         $_SESSION['superadmin_id'] = (int) $superAdmin['id'];
         (new SuperAdminRepository())->touchLogin((int) $superAdmin['id'], client_ip());
         if ($remember) self::issueRememberToken('superadmin', (int) $superAdmin['id']);
