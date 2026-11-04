@@ -141,6 +141,9 @@ RUN printf '%s\n' \
     '#!/bin/sh' \
     'set -e' \
     'PORT="${PORT:-8080}"' \
+    'mkdir -p /var/www/html/storage/uploads/documents /var/www/html/storage/uploads/proofs' \
+    'chown -R www-data:www-data /var/www/html/storage/uploads || true' \
+    'chmod -R u+rwX /var/www/html/storage/uploads || true' \
     'echo "[entrypoint] Apache will listen on port ${PORT}"' \
     'sed -i "s/^Listen 80$/Listen ${PORT}/" /etc/apache2/ports.conf' \
     'sed -i "s/:80>/:${PORT}>/" /etc/apache2/sites-available/000-default.conf' \
