@@ -12,6 +12,19 @@ use App\Core\Csrf;
 
 $superAdminUser = Auth::requireSuperAdmin();
 
+$id = (int) ($_POST['id'] ?? $_GET['id'] ?? 0);
+if ($id <= 0) {
+    flash('danger', 'Submission not found.');
+    redirect('/superadmin/submissions');
+}
+
+$subRepo = new SubmissionRepository();
+$sub = $subRepo->findById($id);
+if (!$sub) {
+    flash('danger', 'Submission not found.');
+    redirect('/superadmin/submissions');
+}
+
 // ------------------------------------------------------------
 // Super Admin action: release a held task back to the pool
 // ------------------------------------------------------------
@@ -37,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'relea
     }
     redirect('/superadmin/submission-view?id=' . $id);
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel_submission') {
     Csrf::verifyOrFail($_POST[CSRF_FIELD_NAME] ?? null, '/superadmin/submission-view?id=' . $id);
 
@@ -57,13 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
     }
     redirect('/superadmin/submission-view?id=' . $id);
 }
-
-$id = (int) ($_GET['id'] ?? 0);
-if ($id <= 0) { flash('danger', 'Submission not found.'); redirect('/superadmin/submissions'); }
-
-$subRepo = new SubmissionRepository();
-$sub = $subRepo->findById($id);
-if (!$sub) { flash('danger', 'Submission not found.'); redirect('/superadmin/submissions'); }
 
 $fields    = (new SubmissionFieldValueRepository())->listForSubmission($id);
 $history   = (new SubmissionStatusHistoryRepository())->listForSubmission($id);
@@ -130,9 +135,10 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
     <!-- Release confirmation modal -->
     <div class="modal fade" id="releaseTaskModal" tabindex="-1">
         <div class="modal-dialog">
-            <form method="post" class="modal-content" novalidate>
+            <form method="post" action="<?= e(url('/superadmin/submission-view?id=' . (int) $id)) ?>" class="modal-content" novalidate>
                 <?= Csrf::field() ?>
                 <input type="hidden" name="action" value="release_task">
+                <input type="hidden" name="id" value="<?= (int) $id ?>">
                 <div class="modal-header">
                     <h5 class="modal-title">Release task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -163,12 +169,13 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
             </form>
         </div>
     </div>
-<!-- Cancel & refund modal -->
+    <!-- Cancel & refund modal -->
 <div class="modal fade" id="cancelSubmissionModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post" class="modal-content" novalidate>
+        <form method="post" action="<?= e(url('/superadmin/submission-view?id=' . (int) $id)) ?>" class="modal-content" novalidate>
             <?= Csrf::field() ?>
             <input type="hidden" name="action" value="cancel_submission">
+            <input type="hidden" name="id" value="<?= (int) $id ?>">
             <div class="modal-header">
                 <h5 class="modal-title">Cancel &amp; refund</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -281,7 +288,7 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
                 <div class="list-group list-group-flush">
                     <?php foreach ($documents as $doc): ?>
                         <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <span class="small"><?= e($doc['original_name']) ?> (<?= number_format($doc['file_size'] / 1024, 1) ?> KB)</span>
+                            <span class="small"><?= e($doc['original_name']) ?> (<?= number_format(((int) ($doc['file_size'] ?? 0)) / 1024, 1) ?> KB)</span>
                             <a class="btn btn-sm btn-outline-primary"
                                href="<?= e(url('/download-document?id=' . (int) $doc['id'])) ?>">
                                 <i class="bi bi-download"></i>
@@ -419,5 +426,17 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
         .release-task-btn { animation: none; }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.location.hash === '#cancel' || window.location.hash === '#cancelSubmissionModal') {
+            const modalEl = document.getElementById('cancelSubmissionModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+    });
+</script>
 
 <?php require APP_ROOT . '/app/Views/layouts/superadmin-bottom.php'; ?>
