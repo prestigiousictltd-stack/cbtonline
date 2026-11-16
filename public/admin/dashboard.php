@@ -159,46 +159,6 @@ require APP_ROOT . '/app/Views/layouts/admin-top.php';
 </div>
 
 <!-- Services -->
-<h6 class="text-uppercase text-muted small mb-3">Services</h6>
-<div class="row g-3">
-    <?php foreach ($services as $svc):
-        $sid    = (int) $svc['id'];
-        $pending   = $countsPerSvc[$sid]['pending'] ?? 0;
-        $processing= $countsPerSvc[$sid]['processing'] ?? 0;
-        $completed = $countsPerSvc[$sid]['completed'] ?? 0;
-    ?>
-        <div class="col-md-6 col-xl-4">
-            <a class="text-decoration-none" href="<?= e(url('/admin/service?id=' . $sid)) ?>">
-                <div class="admin-stat brand h-100">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <div class="label">Service</div>
-                            <div class="fw-bold text-dark"><?= e($svc['name']) ?></div>
-                            <div class="small text-muted mt-1">
-                                <i class="bi bi-clock-history me-1"></i>
-                                <?= e($svc['duration_label'] ?: human_duration((int) $svc['processing_minutes'])) ?>
-                            </div>
-                        </div>
-                        <span class="icon-circle"><i class="bi bi-briefcase"></i></span>
-                    </div>
-                    <div class="row g-2 text-center">
-                        <div class="col-4">
-                            <div class="small text-muted">Pending</div>
-                            <div class="fw-bold text-dark"><?= (int) $pending ?></div>
-                        </div>
-                        <div class="col-4">
-                            <div class="small text-muted">Processing</div>
-                            <div class="fw-bold text-dark"><?= (int) $processing ?></div>
-                        </div>
-                        <div class="col-4">
-                            <div class="small text-muted">Completed</div>
-                            <div class="fw-bold text-dark"><?= (int) $completed ?></div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-    <?php endforeach; ?>
-</div>
+
 
 <?php require APP_ROOT . '/app/Views/layouts/admin-bottom.php'; ?>
