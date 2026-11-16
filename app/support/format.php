@@ -2,9 +2,9 @@
 declare(strict_types=1);
 
 /** Currency formatting. Money comes in as string|int|float DECIMAL. */
-function money(string|int|float $amount, string $symbol = '₦'): string
+function money(string|int|float|null $amount, string $symbol = '₦'): string
 {
-    return $symbol . number_format((float) $amount, 2);
+    return $symbol . number_format((float) ($amount ?? 0), 2);
 }
 
 /** Human-readable duration from minutes. */
