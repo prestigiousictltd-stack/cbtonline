@@ -38,6 +38,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'relea
     redirect('/superadmin/submission-view?id=' . $id);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel_submission') {
+    Csrf::verifyOrFail($_POST[CSRF_FIELD_NAME] ?? null, '/superadmin/submission-view?id=' . $id);
+
+    $reason = trim((string) ($_POST['cancel_reason'] ?? ''));
+    $result = (new App\Services\SubmissionCancellationService())->cancel($id, $superAdminUser, $reason);
+
+    if (!empty($result['ok'])) {
+        flash('success', 'Submission cancelled. ' . money($result['refund_amount']) . ' refunded to the client.');
+    } else {
+        $msg = match ($result['error'] ?? '') {
+            'REASON_REQUIRED'  => 'A reason is required to cancel.',
+            'NOT_CANCELLABLE'  => 'This submission cannot be cancelled in its current state (' . ($result['status'] ?? '') . ').',
+            'NOT_FOUND'        => 'Submission not found.',
+            default            => 'Could not cancel the submission. Please try again.',
+        };
+        flash('danger', $msg);
+    }
+    redirect('/superadmin/submission-view?id=' . $id);
+}
+
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) { flash('danger', 'Submission not found.'); redirect('/superadmin/submissions'); }
 
@@ -90,14 +110,20 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
                         <?php else: ?>
                             and has a live deadline.
                         <?php endif; ?>
-                        Releasing it returns it to the pool so any admin can claim it.
+                        You can release it back to the pool, or cancel it and refund the client.
                     </div>
                 </div>
             </div>
-            <button class="btn release-task-btn"
-        data-bs-toggle="modal" data-bs-target="#releaseTaskModal">
-    <i class="bi bi-arrow-counterclockwise me-1"></i> Release task
-</button>
+           <div class="d-flex gap-2 flex-wrap">
+    <button class="btn release-task-btn"
+            data-bs-toggle="modal" data-bs-target="#releaseTaskModal">
+        <i class="bi bi-arrow-counterclockwise me-1"></i> Release task
+    </button>
+    <button class="btn cancel-submission-btn"
+            data-bs-toggle="modal" data-bs-target="#cancelSubmissionModal">
+        <i class="bi bi-x-octagon me-1"></i> Cancel &amp; refund
+    </button>
+</div>
         </div>
     </div>
 
@@ -137,6 +163,50 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
             </form>
         </div>
     </div>
+<!-- Cancel & refund modal -->
+<div class="modal fade" id="cancelSubmissionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" class="modal-content" novalidate>
+            <?= Csrf::field() ?>
+            <input type="hidden" name="action" value="cancel_submission">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel &amp; refund</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning small mb-3">
+                    <strong>This is permanent.</strong> The submission will be marked
+                    cancelled, and <strong><?= e(money($sub['price_charged'])) ?></strong>
+                    will be refunded to the client's wallet immediately.
+                </div>
+
+                <p class="small text-muted mb-2">
+                    Cancelling <code><?= e($sub['tracking_id']) ?></code> will:
+                </p>
+                <ul class="small text-muted">
+                    <li>Credit the client's wallet with the exact amount they paid</li>
+                    <li>Close the submission — it will not return to the pool</li>
+                    <li>Notify the client and, if held, the current admin</li>
+                </ul>
+
+                <label class="form-label">Reason <span class="text-danger">*</span></label>
+                <textarea name="cancel_reason" class="form-control" rows="3"
+                          required maxlength="500"
+                          placeholder="e.g. Client requested a refund; duplicate submission."></textarea>
+                <div class="form-text">
+                    Recorded in the audit log and shown to the client.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep submission</button>
+                <button class="btn btn-danger"
+                        onclick="return confirm('Permanently cancel and refund this submission?');">
+                    <i class="bi bi-x-octagon me-1"></i> Cancel &amp; refund
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 <?php endif; ?>
 
 <div class="row g-4">
@@ -303,7 +373,32 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
         outline: 3px solid rgba(251, 146, 60, 0.45);
         outline-offset: 2px;
     }
-
+.cancel-submission-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-weight: 700;
+    font-size: .95rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border: 1px solid #991b1b;
+    border-radius: 12px;
+    box-shadow:
+        0 6px 16px rgba(153, 27, 27, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.cancel-submission-btn:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(153, 27, 27, 0.42);
+}
+.cancel-submission-btn:focus-visible {
+    outline: 3px solid rgba(220, 38, 38, 0.45);
+    outline-offset: 2px;
+}
     @keyframes release-pulse {
         0%, 100% {
             box-shadow:
