@@ -89,6 +89,25 @@ final class SubmissionLockRepository
     }
 
     /**
+     * Lock a submission for cancellation. Includes price_charged so the
+     * refund amount can be read from the same locked row.
+     * MUST be called inside a transaction.
+     */
+    public function lockForCancellation(int $submissionId): ?array
+    {
+        return Database::selectOne(
+            'SELECT id, user_id, service_id, status, assigned_admin_id,
+                    claimed_at, deadline_at, release_count,
+                    price_charged, admin_commission_amount, tracking_id
+             FROM submissions
+             WHERE id = :id
+             FOR UPDATE',
+            [':id' => $submissionId]
+        );
+    }
+
+    
+    /**
      * Release all tasks held by an admin. Returns list of IDs released.
      */
     public function releaseAllForAdmin(int $adminId): array
