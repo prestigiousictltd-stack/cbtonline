@@ -165,6 +165,13 @@ require APP_ROOT . '/app/Views/layouts/superadmin-top.php';
                                     <?php else: ?>
                                         <span class="text-muted small">—</span>
                                     <?php endif; ?>
+                                     <?php if (in_array($s['status'], ['pending', 'processing', 'error_detected'], true)): ?>
+                                        <a class="btn btn-sm btn-outline-danger ms-1"
+                                           href="<?= e(url('/superadmin/submission-view?id=' . (int) $s['id'])) ?>#cancel"
+                                           title="Cancel & refund">
+                                            <i class="bi bi-x-octagon"></i>
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
 
                             </tr>
